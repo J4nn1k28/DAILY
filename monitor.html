@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tagesdienst Dashboard</title>
+    <title>FW Monitor</title>
 
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="theme-color" content="#263238">
@@ -12,7 +12,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         :root {
-            /* Monitor Theme: Dunkel & Kontrastreich für Screens */
             --bg-body: #263238; 
             --bg-card: #37474f; 
             --text-main: #eceff1;
@@ -32,6 +31,13 @@
             margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main);
             overflow-x: hidden; padding-bottom: 50px;
         }
+
+        /* NEU: ZURÜCK LINK */
+        .back-link {
+            display: inline-block; padding: 10px 15px; color: var(--text-muted); text-decoration: none;
+            font-weight: bold; font-size: 0.9rem;
+        }
+        .back-link:hover { color: #fff; }
 
         .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
@@ -61,7 +67,7 @@
         .st-green { background: var(--st-grn-bg); color: var(--st-grn-txt); border: 1px solid #81c784; }
         .st-past { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
 
-        /* LISTE UNTEN (DETAILS) */
+        /* LISTE UNTEN */
         .detail-section h3 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-top: 0; color: var(--text-muted); }
         .detail-card {
             background: var(--bg-card); border-radius: 12px; margin-bottom: 15px; overflow: hidden; 
@@ -69,7 +75,6 @@
         }
         .dc-head { padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
         .dc-body { padding: 15px 20px; font-size: 1rem; line-height: 1.5; }
-        
         .names-list { color: #fff; margin-top: 8px; }
         .missing-info { font-weight: bold; }
         
@@ -89,11 +94,25 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #455a64; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* --- MOBILE FIXES (NEU) --- */
+        @media (max-width: 480px) {
+            .container { padding: 8px; width: 100%; }
+            .calendar-grid { gap: 3px; margin-bottom: 20px; }
+            .day-cell { padding: 4px; border-radius: 8px; }
+            .day-num { font-size: 0.9rem; }
+            .day-count { font-size: 1.3rem; }
+            .title { font-size: 1.4rem; }
+            .dc-head { padding: 10px; font-size: 1rem; }
+            .dc-body { padding: 10px; }
+        }
+
     </style>
 </head>
 <body>
 
 <div id="loading"><div class="spinner"></div><p style="margin-top:15px; color:#fff;">Lade Monitor...</p></div>
+
+<a href="index.html" class="back-link">⬅ Zurück zur App</a>
 
 <div class="container">
     <div class="header">
@@ -146,7 +165,7 @@
         document.getElementById('loading').style.display = 'none';
         render();
         
-        // Auto-Refresh alle 5 Minuten für den Monitor
+        // Auto-Refresh alle 5 Minuten
         setTimeout(loadData, 300000); 
     }
 
@@ -185,7 +204,6 @@
 
         document.getElementById('month-display').innerText = startMonday.toLocaleString('de-DE', {month:'long', year:'numeric'});
 
-        // Grid rendern
         for(let w=0; w<2; w++) { 
             for(let d=0; d<5; d++) {
                 let currentDay = new Date(startMonday);
@@ -207,8 +225,6 @@
                 grid.appendChild(el);
             }
         }
-
-        // Details unten rendern (Immer ab HEUTE + 7 Tage, unabhängig vom Grid-Blättern)
         renderDetails(now);
     }
 
@@ -216,18 +232,16 @@
         const container = document.getElementById('detail-list');
         container.innerHTML = '';
 
-        // Nächste 7 Tage anzeigen (ohne Wochenende)
         let daysShown = 0;
         let d = new Date(now);
         
         while(daysShown < 7) {
-            if(d.getDay() !== 0 && d.getDay() !== 6) { // Mo-Fr
+            if(d.getDay() !== 0 && d.getDay() !== 6) { 
                 let key = d.toLocaleDateString('en-CA');
                 let list = entries[key] || [];
                 let st = checkStatus(list);
                 let dateStr = d.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'2-digit'});
                 
-                // Namen formatieren
                 let namesHTML = list.length > 0 
                     ? list.map(p => {
                         let b = '';
