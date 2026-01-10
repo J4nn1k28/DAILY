@@ -58,12 +58,20 @@
         .btn:active { transform: scale(0.98); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: transparent; border: 2px solid var(--border-color); color: var(--text-muted); }
-        
         .btn-join { background: var(--st-grn-txt); color: white; }
         .btn-leave { background: var(--bg-card); border: 2px solid var(--primary); color: var(--primary); }
-
         .btn-text { background: none; border: none; color: var(--text-muted); font-size: 0.9rem; padding: 10px; cursor: pointer; text-decoration: underline; }
         .btn-small { padding: 5px 10px; font-size: 0.8rem; width: auto; margin: 0; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px;}
+        
+        /* HEADER NAV BUTTONS */
+        .btn-icon { 
+            background: none; border: none; 
+            font-size: 1.5rem; /* Größer für bessere Klickbarkeit */
+            cursor: pointer; color: var(--primary); 
+            padding: 5px 15px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-icon:active { opacity: 0.5; transform: scale(0.9); }
 
         input[type="text"], input[type="password"], input[type="date"] {
             width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid var(--border-color); border-radius: 10px; 
@@ -90,14 +98,7 @@
             box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
         }
 
-        /* --- NEUE GRID LISTE FÜR USER SELECT --- */
-        /* Speziell für die Startseite: 2 Spalten */
-        #user-select-list { 
-            list-style: none; padding: 0; margin: 0; 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
-        }
-        
-        /* Die Kacheln auf der Startseite */
+        #user-select-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .user-card {
             background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px; 
             border-radius: 12px; cursor: pointer; box-shadow: var(--shadow);
@@ -107,14 +108,23 @@
         .user-card:active { transform: scale(0.98); background: var(--bg-admin); }
         .user-name { font-weight: 600; font-size: 1rem; margin-bottom: 5px; word-break: break-word; }
 
-        /* Für die Admin Liste (bleibt 1-spaltig) */
         .admin-list { list-style: none; padding: 0; margin: 0; }
         .admin-item {
             background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; margin-bottom: 8px; border-radius: 12px;
             display: flex; justify-content: space-between; align-items: center; cursor: default;
         }
 
-        
+        /* --- HEADER LAYOUT (GEÄNDERT) --- */
+        .header { 
+            display: flex; 
+            justify-content: center; /* Alles in die Mitte */
+            align-items: center; 
+            gap: 15px; /* Abstand zwischen den Elementen */
+            margin-bottom: 15px; 
+            padding-top: 10px; 
+        }
+        .month-title { font-size: 1.4rem; font-weight: 800; margin: 0; text-align: center; min-width: 140px; }
+
         .calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; margin-bottom: 20px; }
         .weekday { text-align: center; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
         .day-cell {
@@ -132,7 +142,7 @@
         .st-green { background: var(--st-grn-bg); color: var(--st-grn-txt); border-color: var(--st-grn-brd); }
         .st-past { background: var(--st-gry-bg); color: var(--st-gry-txt); border-color: transparent; opacity: 0.6; pointer-events: none; }
 
-        .briefing-card { background: var(--bg-card); border-radius: 12px; margin-top: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: var(--shadow); }
+        .briefing-card { background: var(--bg-card); border-radius: 12px; margin-top: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: var(--shadow); position: relative; }
         .bc-head { padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; }
         .bc-body { padding: 15px; font-size: 0.9rem; color: var(--text-main); }
         .bc-green { background: var(--st-grn-bg); color: var(--st-grn-txt); }
@@ -142,6 +152,9 @@
         .vacation-info { color: var(--text-muted); font-style: italic; margin-top: 8px; font-size: 0.85rem; padding-top: 8px; border-top: 1px solid var(--border-color); }
         .vacation-list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
         .vacation-list-item:last-child { border-bottom: none; }
+        
+        .copy-btn { position: absolute; top: 8px; right: 50px; background: rgba(255,255,255,0.3); border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; padding: 4px 8px; color: inherit; font-weight: bold; }
+        .copy-btn:active { transform: scale(0.95); }
 
         .admin-card { background: var(--bg-admin); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
         .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); font-size: 1rem; }
@@ -174,9 +187,7 @@
     <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">Tagesdienstplaner F3917</h1>
     <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Wer bist du?</p>
     <input type="text" id="user-search" placeholder="🔍 Name suchen..." onkeyup="renderUserList()">
-    
     <ul id="user-select-list"></ul>
-    
     <div id="empty-msg" style="display:none; text-align:center; color:var(--text-muted); padding:20px;">
         Verbindung da.<br>Aber noch keine Mannschaft.<br>Bitte als Admin anmelden.
     </div>
@@ -206,6 +217,13 @@
         <label class="toggle-row"><span>Führung (GF/ZF)</span><div class="switch"><input type="checkbox" id="new-gf"><span class="slider"></span></div></label>
         <button class="btn btn-primary" style="margin-top:15px;" onclick="addMember()">Hinzufügen</button>
     </div>
+    
+    <div class="admin-card" style="border-color:var(--st-red-brd); background:rgba(255,0,0,0.02);">
+        <h3 style="margin-top:0; color:var(--st-red-txt);">⚠️ Datenpflege</h3>
+        <p style="font-size:0.9rem; margin-bottom:10px;">Löscht Kalendereinträge und Urlaube, die älter als 30 Tage sind.</p>
+        <button class="btn btn-outline" style="border-color:var(--st-red-txt); color:var(--st-red-txt);" onclick="cleanupData()">Alte Daten löschen</button>
+    </div>
+
     <h3>Mannschaftsliste</h3>
     <ul id="admin-team-list" class="admin-list"></ul>
 </div>
@@ -216,12 +234,14 @@
     </div>
     
     <div class="header">
+        <button class="btn-icon" onclick="changeWeek(-1)">&#9664;</button>
         <div class="month-title" id="month-display">Planer</div>
-        <div style="text-align:right;">
-            <div id="user-display" style="font-weight:bold;">User</div>
-            <small onclick="openVacationModal()" style="color:var(--primary); cursor:pointer; margin-right:5px;">🏖️ Urlaub?</small>
-            <small onclick="showStart()" style="color:var(--text-muted); cursor:pointer; text-decoration:underline;">Logout</small>
-        </div>
+        <button class="btn-icon" onclick="changeWeek(1)">&#9654;</button>
+    </div>
+    <div style="text-align:center; margin-bottom:10px;">
+        <div id="user-display" style="font-weight:bold; display:inline-block;">User</div> |
+        <small onclick="openVacationModal()" style="color:var(--primary); cursor:pointer;">🏖️ Urlaub?</small> |
+        <small onclick="showStart()" style="color:var(--text-muted); cursor:pointer; text-decoration:underline;">Logout</small>
     </div>
 
     <div class="calendar-grid">
@@ -271,6 +291,7 @@
     let currentUser = null;
     let selectedKey = null;
     let hasUnsavedChanges = false;
+    let weekOffset = 0;
 
     // --- DATA ---
     async function loadData() {
@@ -308,6 +329,19 @@
         document.getElementById('loading').style.display = 'none';
     }
 
+    function cleanupData() {
+        if(!confirm("Wirklich alte Einträge (älter als 30 Tage) löschen?")) return;
+        let cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+        let cutoffStr = cutoff.toLocaleDateString('en-CA');
+        let delCount = 0;
+        for(let k in entries) { if(k < cutoffStr) { delete entries[k]; delCount++; } }
+        let initialVac = vacations.length;
+        vacations = vacations.filter(v => v.end >= cutoffStr);
+        delCount += (initialVac - vacations.length);
+        alert(`${delCount} alte Datensätze entfernt.`);
+        markUnsaved();
+    }
+
     function markUnsaved() { hasUnsavedChanges = true; document.getElementById('save-bar').style.display = 'flex'; }
     window.addEventListener("beforeunload", function (e) { if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ""; }});
     window.onload = loadData;
@@ -316,7 +350,7 @@
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function showStart() { 
         if(hasUnsavedChanges) { if(!confirm("Ungespeichert! Abmelden?")) return; hasUnsavedChanges = false; document.getElementById('save-bar').style.display='none'; }
-        currentUser = null; renderUserList(); showScreen('screen-user-select'); 
+        currentUser = null; weekOffset=0; renderUserList(); showScreen('screen-user-select'); 
     }
 
     // --- USER ---
@@ -384,21 +418,29 @@
         if(pa<2) m.push((2-pa)+" PA");
         if(listGF.length === 0) m.push("Führung");
         if(listC.length === 0) m.push("Masch.");
-        
         if (listGF.length > 0 && listC.length > 0 && distinctHeads < 2) m.push("C/GF Konflikt");
 
         let col = 'green'; if(m.length>0) col = 'orange'; if(n<4) col = 'red';
         return { color: col, count: n, text: m.join(', ') || 'Vollzählig' };
     }
 
+    // --- NAVIGATION ---
+    function changeWeek(dir) {
+        weekOffset += dir;
+        renderCalendar();
+    }
+
     function renderCalendar() {
         const grid = document.getElementById('grid-content'); grid.innerHTML = '';
         const now = new Date(); now.setHours(0,0,0,0);
-        document.getElementById('month-display').innerText = now.toLocaleString('de-DE', {month:'long'});
+        
         let dayOfWeek = now.getDay(); let dist = (dayOfWeek + 6) % 7; 
-        let startMonday = new Date(now); startMonday.setDate(now.getDate() - dist);
+        let startMonday = new Date(now); 
+        startMonday.setDate(now.getDate() - dist + (weekOffset * 7)); 
 
-        for(let w=0; w<2; w++) {
+        document.getElementById('month-display').innerText = startMonday.toLocaleString('de-DE', {month:'long', year:'2-digit'});
+
+        for(let w=0; w<2; w++) { 
             for(let d=0; d<5; d++) {
                 let currentDay = new Date(startMonday);
                 currentDay.setDate(startMonday.getDate() + (w * 7) + d);
@@ -448,6 +490,13 @@
     }
     function getVacationers(key) { return vacations.filter(v => key >= v.start && key <= v.end); }
     
+    function copyStatus(key, title, st, list) {
+        let names = list.map(p => p.name).join(', ');
+        let missing = st.color === 'green' ? "Einsatzbereit" : "⚠️ Es fehlt: " + st.text;
+        let text = `*Status ${title} (${key.split('-').reverse().join('.')})*\n${missing}\n\n👥 Dabei (${st.count}/6): ${names || '-'}`;
+        navigator.clipboard.writeText(text).then(() => alert("Kopiert! Ab in WhatsApp damit.")).catch(e => alert("Fehler beim Kopieren"));
+    }
+
     function renderDashboard(now) {
         const board = document.getElementById('dashboard-content'); board.innerHTML = '';
         [0, 1].forEach(offset => {
@@ -463,8 +512,11 @@
             let vacHTML = ''; if(vacationList.length > 0) { let names = vacationList.map(v => v.name).join(', '); vacHTML = `<div class="vacation-info">🏖️ Im Urlaub: ${names}</div>`; }
             let msg = st.color==='green' ? '✅ Einsatzbereit' : `⚠️ Fehlt: ${st.text}`;
             if(list.length===0) msg = "⚠️ Noch niemand eingeteilt";
+            
             let card = document.createElement('div'); card.className = 'briefing-card';
-            card.innerHTML = `<div class="bc-head bc-${st.color}"><span>${title}, ${dateStr}</span><span>${st.count}/6</span></div><div class="bc-body"><div style="font-weight:bold; margin-bottom:5px;">${msg}</div>${notesHTML}${vacHTML}</div>`;
+            card.innerHTML = `
+                <button class="copy-btn" onclick="copyStatus('${key}', '${title}', {count:${st.count}, color:'${st.color}', text:'${st.text}'}, ${JSON.stringify(list).replace(/"/g, "&quot;")})">📋 Copy</button>
+                <div class="bc-head bc-${st.color}"><span>${title}, ${dateStr}</span><span>${st.count}/6</span></div><div class="bc-body"><div style="font-weight:bold; margin-bottom:5px;">${msg}</div>${notesHTML}${vacHTML}</div>`;
             board.appendChild(card);
         });
     }
@@ -479,8 +531,8 @@
         document.getElementById('m-note').value = myEntry ? myEntry.note : '';
         
         const btn = document.getElementById('btn-modal-action');
-        if (myEntry) { btn.innerText = "Austragen"; btn.className = "btn btn-leave"; } 
-        else { btn.innerText = "Eintragen"; btn.className = "btn btn-join"; }
+        if (myEntry) { btn.innerText = "Austragen (Entfernen)"; btn.className = "btn btn-leave"; } 
+        else { btn.innerText = "Eintragen (Vormerken)"; btn.className = "btn btn-join"; }
 
         let html = '';
         list.forEach(p => {
