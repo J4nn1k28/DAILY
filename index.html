@@ -184,15 +184,24 @@
 </div>
 
 <div id="screen-user-select" class="screen active">
-    <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">Tagesdienstplaner F3917</h1>
+    <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">🚒 Dienstplan</h1>
     <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Wer bist du?</p>
+    
     <input type="text" id="user-search" placeholder="🔍 Name suchen..." onkeyup="renderUserList()">
+    
     <ul id="user-select-list"></ul>
+    
     <div id="empty-msg" style="display:none; text-align:center; color:var(--text-muted); padding:20px;">
         Verbindung da.<br>Aber noch keine Mannschaft.<br>Bitte als Admin anmelden.
     </div>
-    <div style="text-align:center; margin-top:40px;">
-        <button class="btn-text" onclick="showAdminLogin()">Admin Login</button>
+
+    <div style="text-align:center; margin-top:40px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+        
+        <a href="monitor.html" class="btn btn-outline" style="text-decoration:none; padding:12px 25px; border-radius:50px; font-size:1rem; border-color:var(--primary); color:var(--primary);">
+            Dashboard öffnen
+        </a>
+
+        <button class="btn-text" onclick="showAdminLogin()" style="margin-top:10px;">Admin Login</button>
     </div>
 </div>
 
