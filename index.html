@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FW Planer LIVE</title>
+    <title>FW Planer (Free)</title>
     <style>
-        /* --- STYLES (Unverändert gut) --- */
+        /* --- STYLES (Unverändert) --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --bg-body: #ffffff; --text-main: #333; --primary: #d32f2f; --radius: 12px;
@@ -159,10 +159,10 @@
 
 <script>
     // ==========================================
-    // KONFIGURATION (HIER DEINE DATEN REIN!)
+    // KONFIGURATION (HIER PANTRY DATEN REIN!)
     // ==========================================
-    const BIN_ID = '69610ea743b1c97be9247493';  // z.B. 65a12...
-    const API_KEY = '$2a$10$yjcPXqEdo.wg//cSuGU1meumRpiS6RuhElroYQmr8KXVStIkT7taa'; // z.B. $2a$10...
+    const PANTRY_ID = '647f62dc-1b66-48f1-a23c-976d635d236f';  // z.B. 945e-.....
+    const BASKET_NAME = 'feuerwehr_data'; // Muss mit dem Basket-Namen übereinstimmen
     // ==========================================
 
     let team = [];
@@ -172,29 +172,28 @@
     let currentUser = null;
     let selectedKey = null;
 
-    // --- CLOUD DATEN LADEN / SPEICHERN ---
+    // --- PANTRY API LOGIK ---
     async function loadData() {
         document.getElementById('loading').style.display = 'flex';
         try {
-            // Wenn keine ID eingetragen ist, Dummy Modus (damit man was sieht)
-            if(BIN_ID.includes('HIER_')) throw new Error("No Config");
+            if(PANTRY_ID.includes('HIER_')) throw new Error("No Config");
 
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
+            // URL für GET (Read)
+            const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
+            
+            const res = await fetch(url);
             if(!res.ok) throw new Error("Netzwerkfehler");
             
             const data = await res.json();
-            // JSONBin packt Daten in 'record'
-            const record = data.record;
             
-            team = record.team || [];
-            entries = record.entries || {};
-            vacations = record.vacations || [];
+            // Pantry liefert die Daten direkt
+            team = data.team || [];
+            entries = data.entries || {};
+            vacations = data.vacations || [];
             
         } catch(e) {
-            console.log("Offline Modus oder erste Nutzung", e);
-            // Fallback auf LocalStorage wenn Cloud nicht geht
+            console.log("Offline Modus oder Fehler", e);
+            // Fallback LocalStorage
             team = JSON.parse(localStorage.getItem('fw_team')) || [];
             entries = JSON.parse(localStorage.getItem('fw_entries')) || {};
             vacations = JSON.parse(localStorage.getItem('fw_vacations')) || [];
@@ -206,35 +205,33 @@
     async function syncData() {
         document.getElementById('loading').style.display = 'flex';
         
-        // Lokal sichern
+        // Lokal Backup
         localStorage.setItem('fw_team', JSON.stringify(team));
         localStorage.setItem('fw_entries', JSON.stringify(entries));
         localStorage.setItem('fw_vacations', JSON.stringify(vacations));
 
-        if(BIN_ID.includes('HIER_')) {
+        if(PANTRY_ID.includes('HIER_')) {
             setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
             return;
         }
 
         try {
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': API_KEY
-                },
+            const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
+            await fetch(url, {
+                method: 'POST', // Pantry nutzt POST zum Updaten
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ team, entries, vacations })
             });
         } catch(e) {
-            alert("Fehler beim Speichern in der Cloud. Daten nur lokal gespeichert.");
+            alert("Fehler beim Speichern in der Cloud. Nur lokal gesichert.");
         }
         document.getElementById('loading').style.display = 'none';
     }
 
-    // Start
+    // Starten
     window.onload = loadData;
 
-    // --- NAVIGATION ---
+    // --- NAV ---
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -259,7 +256,6 @@
             });
         }
     }
-
     function loginUser(userObj) {
         currentUser = userObj;
         document.getElementById('user-display').innerText = userObj.name;
@@ -267,7 +263,6 @@
         checkReminder();
         renderCalendar();
     }
-
     function checkReminder() {
         const banner = document.getElementById('reminder-banner');
         banner.style.display = 'none';
@@ -301,12 +296,7 @@
         renderAdminList();
     }
     function deleteMember(i) { if(confirm('Löschen?')) { team.splice(i,1); renderAdminList(); } }
-    
-    // Admin Save
-    function saveAndExitAdmin() {
-        syncData(); // Ab in die Cloud
-        showStart();
-    }
+    function saveAndExitAdmin() { syncData(); showStart(); }
 
     // --- PLANER ---
     function checkStatus(list) {
@@ -319,7 +309,6 @@
         let col = 'green'; if(m.length>0) col = 'orange'; if(n<4) col = 'red';
         return { color: col, count: n, text: m.join(', ') || 'Vollzählig' };
     }
-
     function renderCalendar() {
         const grid = document.getElementById('grid-content'); grid.innerHTML = '';
         const now = new Date(); now.setHours(0,0,0,0);
@@ -353,7 +342,7 @@
         const end = document.getElementById('vac-end').value;
         if(!start || !end) return alert("Datum fehlt");
         vacations.push({ name: currentUser.name, start: start, end: end });
-        syncData(); // Speichern
+        syncData();
         document.getElementById('modal-vacation').style.display = 'none';
         alert("Urlaub eingetragen!");
         renderCalendar();
@@ -395,7 +384,6 @@
         });
         document.getElementById('m-list').innerHTML = html || '<i>Leer</i>';
     }
-
     function saveEntry() {
         let list = entries[selectedKey] || [];
         let note = document.getElementById('m-note').value;
@@ -403,13 +391,10 @@
         if(idx > -1) list.splice(idx, 1);
         else list.push({...currentUser, note: note});
         entries[selectedKey] = list;
-        
         document.getElementById('modal-bg').style.display = 'none';
-        
-        syncData(); // Speichern in Cloud
+        syncData(); 
         renderCalendar();
     }
-
     function closeModal(e) { if(e.target.id === 'modal-bg' || e.target.id === 'modal-vacation') { document.getElementById('modal-bg').style.display = 'none'; document.getElementById('modal-vacation').style.display = 'none'; }}
 
 </script>
