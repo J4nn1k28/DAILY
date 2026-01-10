@@ -3,76 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   
     <title>Tagesdienstplaner F3917</title>
-    
+
     <link rel="icon" type="image/png" href="icon.png">
-    
     <link rel="apple-touch-icon" href="icon.png">
     
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+
     <style>
-        /* --- STYLES (Unverändert) --- */
+        /* --- GLOBAL RESET --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        /* --- FARBPALETTE & VARIABLEN --- */
         :root {
-            --bg-body: #ffffff; --text-main: #333; --primary: #d32f2f; --radius: 12px;
+            /* LIGHT MODE (Standard) */
+            --primary: #d32f2f;
+            --bg-body: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --bg-admin: #f8f9fa;
+            
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #eeeeee;
+
+            /* Status Farben (Hell) */
             --st-red-bg: #ffebee; --st-red-txt: #c62828; --st-red-brd: #ef9a9a;
-            --st-orange-bg: #fff3e0; --st-orange-txt: #ef6c00; --st-orange-brd: #ffe082;
-            --st-green-bg: #e8f5e9; --st-green-txt: #2e7d32; --st-green-brd: #a5d6a7;
-            --st-gray-bg: #f3f4f6; --st-gray-txt: #9ca3af;
+            --st-org-bg: #fff3e0; --st-org-txt: #ef6c00; --st-org-brd: #ffe082;
+            --st-grn-bg: #e8f5e9; --st-grn-txt: #2e7d32; --st-grn-brd: #a5d6a7;
+            --st-gry-bg: #f3f4f6; --st-gry-txt: #9ca3af; /* Vergangen */
+
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+            --radius: 12px;
         }
+
+        /* DARK MODE OVERRIDES (Automatisch) */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #ef5350; /* Etwas helleres Rot für Kontrast */
+                --bg-body: #121212;
+                --bg-card: #1e1e1e;
+                --bg-input: #2c2c2c;
+                --bg-admin: #262626;
+
+                --text-main: #e0e0e0;
+                --text-muted: #a0a0a0;
+                --border-color: #333333;
+
+                /* Status Farben (Dunkel - gedimmt) */
+                --st-red-bg: #450a0a; --st-red-txt: #fca5a5; --st-red-brd: #7f1d1d;
+                --st-org-bg: #431407; --st-org-txt: #fdba74; --st-org-brd: #7c2d12;
+                --st-grn-bg: #052e16; --st-grn-txt: #86efac; --st-grn-brd: #14532d;
+                --st-gry-bg: #262626; --st-gry-txt: #555555;
+
+                --shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main);
+            margin: 0; padding: 0; 
+            background: var(--bg-body); color: var(--text-main);
             overflow-x: hidden; padding-bottom: 80px;
+            transition: background 0.3s, color 0.3s;
         }
+
+        /* --- SCREEN MANAGEMENT --- */
         .screen { display: none; padding: 20px; max-width: 500px; margin: 0 auto; min-height: 100vh; }
         .active { display: block; }
+
+        /* --- UI ELEMENTS --- */
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: transform 0.1s; }
         .btn:active { transform: scale(0.98); }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: transparent; border: 2px solid #eee; color: #555; }
-        .btn-text { background: none; border: none; color: #999; font-size: 0.9rem; padding: 10px; cursor: pointer; text-decoration: underline; }
-        .btn-small { padding: 5px 10px; font-size: 0.8rem; width: auto; margin: 0; border: 1px solid #ddd; background: #fff; border-radius: 6px;}
-        input[type="text"], input[type="password"], input[type="date"] { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1.1rem; outline: none; background: #fff; }
+        .btn-outline { background: transparent; border: 2px solid var(--border-color); color: var(--text-muted); }
+        .btn-text { background: none; border: none; color: var(--text-muted); font-size: 0.9rem; padding: 10px; cursor: pointer; text-decoration: underline; }
+        .btn-small { padding: 5px 10px; font-size: 0.8rem; width: auto; margin: 0; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px;}
+
+        input[type="text"], input[type="password"], input[type="date"] {
+            width: 100%; padding: 15px; margin-bottom: 15px; 
+            border: 2px solid var(--border-color); border-radius: 10px; 
+            font-size: 1.1rem; outline: none; 
+            background: var(--bg-input); color: var(--text-main);
+        }
         input:focus { border-color: var(--primary); }
+
+        /* --- USER LIST --- */
         .user-select-list { list-style: none; padding: 0; margin: 0; }
-        .user-item { background: white; border: 1px solid #eee; padding: 18px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-size: 1.1rem; }
-        .admin-card { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee; }
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 1rem; }
+        .user-item {
+            background: var(--bg-card); border: 1px solid var(--border-color); 
+            padding: 15px; margin-bottom: 8px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+        .user-item:active { opacity: 0.7; }
+        .arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+        /* --- ADMIN PANEL --- */
+        .admin-card { background: var(--bg-admin); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); font-size: 1rem; }
+        
+        /* Switch */
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(22px); }
+
+        /* --- HEADER --- */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-top: 10px; }
-        .month-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
-        #reminder-banner { display: none; background: #fff3e0; border: 1px solid #ffe082; color: #e65100; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; margin-bottom: 20px; }
-        .weekday { text-align: center; font-size: 0.75rem; color: #888; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
-        .day-cell { background: white; aspect-ratio: 1 / 1; border-radius: 8px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; padding: 4px; cursor: pointer; }
-        .day-num { font-size: 11px; color: #666; font-weight: 600; }
-        .day-count { align-self: center; font-weight: 900; font-size: clamp(12px, 4.5vw, 18px); line-height: 1; }
-        .day-check { align-self: flex-end; font-size: 10px; height: 12px; }
-        .st-red { background: var(--st-red-bg); color: var(--st-red-txt); border-color: var(--st-red-brd); }
-        .st-orange { background: var(--st-orange-bg); color: var(--st-orange-txt); border-color: var(--st-orange-brd); }
-        .st-green { background: var(--st-green-bg); color: var(--st-green-txt); border-color: var(--st-green-brd); }
-        .st-past { background: var(--st-gray-bg); color: var(--st-gray-txt); border-color: #eee; opacity: 0.5; pointer-events: none; }
-        .briefing-card { background: white; border-radius: 12px; margin-top: 10px; border: 1px solid #eee; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .bc-head { padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; }
-        .bc-body { padding: 15px; font-size: 0.9rem; }
-        .bc-green { background: var(--st-green-bg); color: var(--st-green-txt); }
-        .bc-red { background: var(--st-red-bg); color: var(--st-red-txt); }
-        .bc-orange { background: var(--st-orange-bg); color: var(--st-orange-txt); }
-        .note-alert { background: #fff8e1; border: 1px solid #ffe082; padding: 6px 10px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem;}
-        .vacation-info { color: #666; font-style: italic; margin-top: 8px; font-size: 0.85rem; padding-top: 8px; border-top: 1px solid #f0f0f0; }
-        .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; }
-        .modal-card { background: white; width: 90%; max-width: 350px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .user-list-scroll { max-height: 150px; overflow-y: auto; margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid #eee; padding-top: 10px;}
+        .month-title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main); }
+
+        /* --- REMINDER --- */
+        #reminder-banner {
+            display: none; background: var(--st-org-bg); border: 1px solid var(--st-org-brd); color: var(--st-org-txt);
+            padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; box-shadow: var(--shadow);
+        }
+
+        /* --- CALENDAR GRID --- */
+        .calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; margin-bottom: 20px; }
+        .weekday { text-align: center; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
         
-        /* Loading Overlay */
-        #loading { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;}
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .day-cell {
+            background: var(--bg-card); aspect-ratio: 1 / 1; border-radius: 10px; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; justify-content: space-between; padding: 5px; cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.1s;
+        }
+        .day-cell:active { transform: scale(0.95); }
+        
+        .day-num { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .day-count { align-self: center; font-weight: 900; font-size: clamp(12px, 4.5vw, 18px); line-height: 1; color: var(--text-main); }
+        .day-check { align-self: flex-end; font-size: 10px; height: 12px; }
+
+        /* Status Classes using Variables */
+        .st-red { background: var(--st-red-bg); color: var(--st-red-txt); border-color: var(--st-red-brd); }
+        .st-orange { background: var(--st-org-bg); color: var(--st-org-txt); border-color: var(--st-org-brd); }
+        .st-green { background: var(--st-grn-bg); color: var(--st-grn-txt); border-color: var(--st-grn-brd); }
+        .st-past { background: var(--st-gry-bg); color: var(--st-gry-txt); border-color: transparent; opacity: 0.6; pointer-events: none; }
+
+        /* --- BRIEFING CARDS --- */
+        .briefing-card { background: var(--bg-card); border-radius: 12px; margin-top: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: var(--shadow); }
+        .bc-head { padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; }
+        .bc-body { padding: 15px; font-size: 0.9rem; color: var(--text-main); }
+        
+        .bc-green { background: var(--st-grn-bg); color: var(--st-grn-txt); }
+        .bc-red { background: var(--st-red-bg); color: var(--st-red-txt); }
+        .bc-orange { background: var(--st-org-bg); color: var(--st-org-txt); }
+        
+        .note-alert { background: var(--st-org-bg); border: 1px solid var(--st-org-brd); color: var(--text-main); padding: 6px 10px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem;}
+        .vacation-info { color: var(--text-muted); font-style: italic; margin-top: 8px; font-size: 0.85rem; padding-top: 8px; border-top: 1px solid var(--border-color); }
+
+        /* --- MODAL --- */
+        .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-card { background: var(--bg-card); width: 90%; max-width: 350px; padding: 25px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: var(--text-main); }
+        .user-list-scroll { max-height: 150px; overflow-y: auto; margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid var(--border-color); padding-top: 10px;}
+        
+        /* Loading */
+        #loading { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-body); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; color: var(--text-main); }
+        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -80,16 +170,18 @@
 
 <div id="loading">
     <div class="loader"></div>
-    <p style="margin-top:10px; color:#666;">Daten werden geladen...</p>
+    <p style="margin-top:10px;">Daten werden geladen...</p>
 </div>
 
 <div id="screen-user-select" class="screen active">
-    <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">🚒 Dienstplan</h1>
-    <p style="text-align:center; color:#666; margin-bottom:30px;">Wer bist du?</p>
+    <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">Tagesdienst F3917</h1>
+    <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Wer bist du?</p>
     
+    <input type="text" id="user-search" placeholder="🔍 Name suchen..." onkeyup="renderUserList()">
+
     <ul id="user-select-list" class="user-select-list"></ul>
-    <div id="empty-msg" style="display:none; text-align:center; color:#999; padding:20px;">
-        Verbindung hergestellt.<br>Aber noch keine Mannschaft.<br>Bitte als Admin anmelden.
+    <div id="empty-msg" style="display:none; text-align:center; color:var(--text-muted); padding:20px;">
+        Verbindung da.<br>Aber noch keine Mannschaft.<br>Bitte als Admin anmelden.
     </div>
 
     <div style="text-align:center; margin-top:40px;">
@@ -99,7 +191,7 @@
 
 <div id="screen-admin-login" class="screen" style="text-align:center;">
     <h2 style="margin-top:40px;">🔒 Admin Login</h2>
-    <p>PIN eingeben (Standard: 112)</p>
+    <p style="color:var(--text-muted);">PIN eingeben</p>
     <input type="password" id="admin-pin" placeholder="PIN" pattern="[0-9]*" inputmode="numeric" style="text-align:center;">
     <button class="btn btn-primary" onclick="checkAdmin()">Einloggen</button>
     <button class="btn btn-outline" onclick="showStart()">Zurück</button>
@@ -130,7 +222,7 @@
         <div style="text-align:right;">
             <div id="user-display" style="font-weight:bold;">User</div>
             <small onclick="openVacationModal()" style="color:var(--primary); cursor:pointer; margin-right:5px;">🏖️ Urlaub?</small>
-            <small onclick="showStart()" style="color:#888; cursor:pointer; text-decoration:underline;">Logout</small>
+            <small onclick="showStart()" style="color:var(--text-muted); cursor:pointer; text-decoration:underline;">Logout</small>
         </div>
     </div>
     <div class="calendar-grid">
@@ -145,7 +237,7 @@
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
     <div class="modal-card">
         <div style="font-size:1.2rem; font-weight:bold;" id="m-date">Datum</div>
-        <div style="font-size:0.9rem; color:#666; margin-bottom:10px;" id="m-status-text">Status</div>
+        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;" id="m-status-text">Status</div>
         <label style="font-size:0.8rem; font-weight:bold;">Notiz (optional):</label>
         <input type="text" id="m-note" style="margin-top:5px; padding:10px;" placeholder="z.B. erst ab 12 Uhr...">
         <div class="user-list-scroll" id="m-list"></div>
@@ -165,7 +257,7 @@
 
 <script>
     // ==========================================
-    // KONFIGURATION (HIER PANTRY DATEN REIN!)
+    // CONFIG (PANTRY ID HIER REIN)
     // ==========================================
     const PANTRY_ID = '647f62dc-1b66-48f1-a23c-976d635d236f';  // z.B. 945e-.....
     const BASKET_NAME = 'feuerwehr_data'; // Muss mit dem Basket-Namen übereinstimmen
@@ -174,32 +266,22 @@
     let team = [];
     let entries = {};
     let vacations = [];
-    
     let currentUser = null;
     let selectedKey = null;
 
-    // --- PANTRY API LOGIK ---
+    // --- CLOUD SYNC ---
     async function loadData() {
         document.getElementById('loading').style.display = 'flex';
         try {
             if(PANTRY_ID.includes('HIER_')) throw new Error("No Config");
-
-            // URL für GET (Read)
-            const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
-            
-            const res = await fetch(url);
+            const res = await fetch(`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`);
             if(!res.ok) throw new Error("Netzwerkfehler");
-            
             const data = await res.json();
-            
-            // Pantry liefert die Daten direkt
             team = data.team || [];
             entries = data.entries || {};
             vacations = data.vacations || [];
-            
         } catch(e) {
-            console.log("Offline Modus oder Fehler", e);
-            // Fallback LocalStorage
+            console.log("Offline/Init", e);
             team = JSON.parse(localStorage.getItem('fw_team')) || [];
             entries = JSON.parse(localStorage.getItem('fw_entries')) || {};
             vacations = JSON.parse(localStorage.getItem('fw_vacations')) || [];
@@ -210,31 +292,20 @@
 
     async function syncData() {
         document.getElementById('loading').style.display = 'flex';
-        
-        // Lokal Backup
         localStorage.setItem('fw_team', JSON.stringify(team));
         localStorage.setItem('fw_entries', JSON.stringify(entries));
         localStorage.setItem('fw_vacations', JSON.stringify(vacations));
-
-        if(PANTRY_ID.includes('HIER_')) {
-            setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
-            return;
-        }
-
-        try {
-            const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
-            await fetch(url, {
-                method: 'POST', // Pantry nutzt POST zum Updaten
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ team, entries, vacations })
-            });
-        } catch(e) {
-            alert("Fehler beim Speichern in der Cloud. Nur lokal gesichert.");
+        if(!PANTRY_ID.includes('HIER_')) {
+            try {
+                await fetch(`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ team, entries, vacations })
+                });
+            } catch(e) { alert("Cloud Fehler - Lokal gespeichert"); }
         }
         document.getElementById('loading').style.display = 'none';
     }
 
-    // Starten
     window.onload = loadData;
 
     // --- NAV ---
@@ -244,74 +315,93 @@
     }
     function showStart() { currentUser = null; renderUserList(); showScreen('screen-user-select'); }
 
-    // --- USER SELECT ---
+    // --- USER SELECT & SORT & FILTER ---
     function renderUserList() {
         const list = document.getElementById('user-select-list');
         const emptyMsg = document.getElementById('empty-msg');
+        const searchVal = document.getElementById('user-search').value.toLowerCase();
+        
         list.innerHTML = '';
         if(team.length === 0) {
             emptyMsg.style.display = 'block';
+            document.getElementById('user-search').style.display = 'none';
         } else {
             emptyMsg.style.display = 'none';
-            team.forEach(p => {
+            document.getElementById('user-search').style.display = 'block';
+            
+            // Sortieren A-Z
+            let sorted = [...team].sort((a,b) => a.name.localeCompare(b.name));
+            // Filtern
+            let filtered = sorted.filter(p => p.name.toLowerCase().includes(searchVal));
+
+            if(filtered.length === 0) list.innerHTML = '<li style="text-align:center; color:gray; padding:20px">Kein Treffer</li>';
+
+            filtered.forEach(p => {
+                let badges = [];
+                if(p.gf) badges.push('<span style="background:var(--st-grn-bg); color:var(--st-grn-txt); font-size:0.7rem; padding:2px 5px; border-radius:4px; margin-right:3px;">GF</span>');
+                if(p.c) badges.push('<span style="background:var(--st-org-bg); color:var(--st-org-txt); font-size:0.7rem; padding:2px 5px; border-radius:4px; margin-right:3px;">C</span>');
+                if(p.pa) badges.push('<span style="background:var(--st-red-bg); color:var(--st-red-txt); font-size:0.7rem; padding:2px 5px; border-radius:4px;">PA</span>');
+
                 let li = document.createElement('li');
                 li.className = 'user-item';
                 li.onclick = () => loginUser(p);
-                li.innerHTML = `<span style="font-weight:600;">${p.name}</span><span class="arrow">Starten &rsaquo;</span>`;
+                li.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                        <span style="font-weight:600; font-size:1.05rem;">${p.name}</span>
+                        <div style="margin-top:2px;">${badges.join('')}</div>
+                    </div>
+                    <span class="arrow">&rsaquo;</span>
+                `;
                 list.appendChild(li);
             });
         }
     }
-    function loginUser(userObj) {
-        currentUser = userObj;
-        document.getElementById('user-display').innerText = userObj.name;
+    function loginUser(p) {
+        currentUser = p;
+        document.getElementById('user-display').innerText = p.name;
         showScreen('screen-app');
         checkReminder();
         renderCalendar();
     }
     function checkReminder() {
-        const banner = document.getElementById('reminder-banner');
-        banner.style.display = 'none';
-        let tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-        let key = tomorrow.toLocaleDateString('en-CA');
-        let list = entries[key] || [];
-        if(list.some(p => p.name === currentUser.name)) banner.style.display = 'block';
+        const banner = document.getElementById('reminder-banner'); banner.style.display = 'none';
+        let tmr = new Date(); tmr.setDate(tmr.getDate()+1);
+        let key = tmr.toLocaleDateString('en-CA');
+        if((entries[key]||[]).some(p => p.name===currentUser.name)) banner.style.display='block';
     }
 
     // --- ADMIN ---
     function showAdminLogin() { showScreen('screen-admin-login'); }
     function checkAdmin() {
-        if(document.getElementById('admin-pin').value === '112') {
-            renderAdminList(); showScreen('screen-admin-panel'); document.getElementById('admin-pin').value = '';
-        } else alert('Falsche PIN!');
+        if(document.getElementById('admin-pin').value==='2801') { renderAdminList(); showScreen('screen-admin-panel'); document.getElementById('admin-pin').value=''; }
+        else alert('Falsche PIN!');
     }
     function renderAdminList() {
         const list = document.getElementById('admin-team-list'); list.innerHTML = '';
-        team.forEach((p, index) => {
-            let b = []; if(p.pa) b.push('PA'); if(p.c) b.push('C'); if(p.gf) b.push('GF');
-            let li = document.createElement('li'); li.className = 'user-item'; li.style.cursor = 'default';
-            li.innerHTML = `<div><b>${p.name}</b> <small>(${b.join(', ')})</small></div><button class="btn-small" style="color:red;" onclick="deleteMember(${index})">Löschen</button>`;
-            list.appendChild(li);
+        let sorted = [...team].sort((a,b) => a.name.localeCompare(b.name));
+        sorted.forEach((p, idx) => {
+             // Achtung: Index im sorted Array stimmt nicht mit team Array überein. 
+             // Zum Löschen suchen wir im Original Array.
+             let realIdx = team.findIndex(t => t.name === p.name);
+             let b = []; if(p.pa) b.push('PA'); if(p.c) b.push('C'); if(p.gf) b.push('GF');
+             let li = document.createElement('li'); li.className='user-item'; li.style.cursor='default';
+             li.innerHTML = `<div><b>${p.name}</b> <small>(${b.join(', ')})</small></div><button class="btn-small" style="color:var(--st-red-txt);" onclick="deleteMember(${realIdx})">Löschen</button>`;
+             list.appendChild(li);
         });
     }
     function addMember() {
-        const name = document.getElementById('new-name').value.trim();
-        if(!name) return;
-        team.push({ name: name, pa: document.getElementById('new-pa').checked, c: document.getElementById('new-c').checked, gf: document.getElementById('new-gf').checked });
-        document.getElementById('new-name').value = '';
-        renderAdminList();
+        const n = document.getElementById('new-name').value.trim();
+        if(!n) return;
+        team.push({ name:n, pa:document.getElementById('new-pa').checked, c:document.getElementById('new-c').checked, gf:document.getElementById('new-gf').checked });
+        document.getElementById('new-name').value=''; renderAdminList();
     }
     function deleteMember(i) { if(confirm('Löschen?')) { team.splice(i,1); renderAdminList(); } }
     function saveAndExitAdmin() { syncData(); showStart(); }
 
     // --- PLANER ---
     function checkStatus(list) {
-        let n = list.length;
-        let pa = list.filter(x => x.pa).length;
-        let c = list.filter(x => x.c).length;
-        let gf = list.filter(x => x.gf).length;
-        let m = [];
-        if(n<6) m.push((6-n)+" Pers"); if(pa<2) m.push((2-pa)+" PA"); if(c<1) m.push("Masch."); if(gf<1) m.push("Führung");
+        let n = list.length, pa = list.filter(x=>x.pa).length, c = list.filter(x=>x.c).length, gf = list.filter(x=>x.gf).length;
+        let m = []; if(n<6) m.push((6-n)+" Pers"); if(pa<2) m.push((2-pa)+" PA"); if(c<1) m.push("Masch."); if(gf<1) m.push("Führung");
         let col = 'green'; if(m.length>0) col = 'orange'; if(n<4) col = 'red';
         return { color: col, count: n, text: m.join(', ') || 'Vollzählig' };
     }
@@ -341,20 +431,15 @@
         }
         renderDashboard(now);
     }
-
-    function openVacationModal() { document.getElementById('modal-vacation').style.display = 'flex'; }
+    function openVacationModal() { document.getElementById('modal-vacation').style.display='flex'; }
     function saveVacation() {
-        const start = document.getElementById('vac-start').value;
-        const end = document.getElementById('vac-end').value;
-        if(!start || !end) return alert("Datum fehlt");
-        vacations.push({ name: currentUser.name, start: start, end: end });
-        syncData();
-        document.getElementById('modal-vacation').style.display = 'none';
-        alert("Urlaub eingetragen!");
-        renderCalendar();
+        let s = document.getElementById('vac-start').value, e = document.getElementById('vac-end').value;
+        if(!s || !e) return alert("Datum fehlt");
+        vacations.push({ name: currentUser.name, start: s, end: e });
+        syncData(); document.getElementById('modal-vacation').style.display='none'; alert("Eingetragen"); renderCalendar();
     }
-    function getVacationers(dateKey) { return vacations.filter(v => dateKey >= v.start && dateKey <= v.end); }
-
+    function getVacationers(key) { return vacations.filter(v => key >= v.start && key <= v.end); }
+    
     function renderDashboard(now) {
         const board = document.getElementById('dashboard-content'); board.innerHTML = '';
         [0, 1].forEach(offset => {
@@ -375,7 +460,6 @@
             board.appendChild(card);
         });
     }
-
     function openModal(key, day, st, list) {
         selectedKey = key;
         document.getElementById('modal-bg').style.display = 'flex';
@@ -385,8 +469,8 @@
         document.getElementById('m-note').value = myEntry ? myEntry.note : '';
         let html = '';
         list.forEach(p => {
-            let note = p.note ? `<br><span style="color:#d32f2f; font-size:0.8rem;">➥ ${p.note}</span>` : '';
-            html += `<div style="border-bottom:1px solid #f0f0f0; padding:4px 0;"><b>${p.name}</b> ${note}</div>`;
+            let note = p.note ? `<br><span style="color:var(--primary); font-size:0.8rem;">➥ ${p.note}</span>` : '';
+            html += `<div style="border-bottom:1px solid var(--border-color); padding:4px 0;"><b>${p.name}</b> ${note}</div>`;
         });
         document.getElementById('m-list').innerHTML = html || '<i>Leer</i>';
     }
@@ -398,12 +482,9 @@
         else list.push({...currentUser, note: note});
         entries[selectedKey] = list;
         document.getElementById('modal-bg').style.display = 'none';
-        syncData(); 
-        renderCalendar();
+        syncData(); renderCalendar();
     }
     function closeModal(e) { if(e.target.id === 'modal-bg' || e.target.id === 'modal-vacation') { document.getElementById('modal-bg').style.display = 'none'; document.getElementById('modal-vacation').style.display = 'none'; }}
-
 </script>
 </body>
 </html>
-
