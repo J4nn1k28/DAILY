@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FW Monitor</title>
+    <title>FW Monitor (TimeLogic)</title>
 
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="theme-color" content="#263238">
@@ -32,7 +32,6 @@
             overflow-x: hidden; padding-bottom: 50px;
         }
 
-        /* NEU: ZURÜCK LINK */
         .back-link {
             display: inline-block; padding: 10px 15px; color: var(--text-muted); text-decoration: none;
             font-weight: bold; font-size: 0.9rem;
@@ -75,11 +74,14 @@
         }
         .dc-head { padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
         .dc-body { padding: 15px 20px; font-size: 1rem; line-height: 1.5; }
+        
         .names-list { color: #fff; margin-top: 8px; }
         .missing-info { font-weight: bold; }
         
         .badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin: 0 2px; color: #000; font-weight: bold; vertical-align: middle; }
         .b-gf { background: #a5d6a7; } .b-c { background: #ffe082; } .b-pa { background: #ef9a9a; }
+        
+        .time-badge { font-size: 0.8rem; color: #ffcc80; font-weight: normal; margin-left: 4px; }
 
         /* MODAL */
         .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
@@ -94,7 +96,6 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #455a64; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- MOBILE FIXES (NEU) --- */
         @media (max-width: 480px) {
             .container { padding: 8px; width: 100%; }
             .calendar-grid { gap: 3px; margin-bottom: 20px; }
@@ -105,7 +106,6 @@
             .dc-head { padding: 10px; font-size: 1rem; }
             .dc-body { padding: 10px; }
         }
-
     </style>
 </head>
 <body>
@@ -164,31 +164,50 @@
         }
         document.getElementById('loading').style.display = 'none';
         render();
-        
-        // Auto-Refresh alle 5 Minuten
         setTimeout(loadData, 300000); 
     }
 
+    // --- NEUE LOGIK: STUNDENBASIERT ---
     function checkStatus(list) {
         list = list || [];
-        let n = list.length;
-        let pa = list.filter(x=>x.pa).length;
-        let listGF = list.filter(x => x.gf);
-        let listC = list.filter(x => x.c);
-        let listBoth = list.filter(x => x.gf && x.c);
-        let distinctHeads = listGF.length + listC.length - listBoth.length;
+        const START_HOUR = 6;
+        const END_HOUR = 18;
+        let badHours = [];
 
-        let m = [];
-        if(n<6) m.push((6-n)+" Pers");
-        if(pa<2) m.push((2-pa)+" PA");
-        if(listGF.length === 0) m.push("Führung");
-        if(listC.length === 0) m.push("Masch.");
-        if (listGF.length > 0 && listC.length > 0 && distinctHeads < 2) m.push("C/GF Konflikt");
+        // Jede Stunde prüfen
+        for(let h = START_HOUR; h < END_HOUR; h++) {
+            let peopleAtHour = list.filter(p => {
+                let s = p.start ? parseInt(p.start.split(':')[0]) : START_HOUR;
+                let e = p.end ? parseInt(p.end.split(':')[0]) : END_HOUR;
+                return h >= s && h < e;
+            });
 
-        let col = 'green'; 
-        if(m.length>0) col = 'orange'; 
-        if(n<4) col = 'red';
-        return { color: col, count: n, text: m.join(', ') || 'Vollzählig' };
+            let n = peopleAtHour.length;
+            let gf = peopleAtHour.filter(x => x.gf).length;
+            let c = peopleAtHour.filter(x => x.c).length;
+            
+            let issues = [];
+            if(n < 6) issues.push("Personal");
+            if(gf < 1) issues.push("GF");
+            if(c < 1) issues.push("Masch"); // Kürzer für Monitor
+
+            if(issues.length > 0) {
+                badHours.push(`${h}-${h+1} (${issues.join(',')})`);
+            }
+        }
+
+        let totalCount = list.length;
+        
+        if (badHours.length === 0) {
+            return { color: 'green', count: totalCount, text: 'Voll besetzt (06-18)' };
+        } else {
+            // Nur den ersten Fehler anzeigen für Kompaktheit
+            let txt = badHours.length === (END_HOUR - START_HOUR) ? "Nicht besetzt" : "Lücke: " + badHours[0];
+            if(badHours.length > 1) txt += "..";
+            
+            let col = totalCount < 4 ? 'red' : 'orange';
+            return { color: col, count: totalCount, text: txt };
+        }
     }
 
     function changeWeek(dir) { weekOffset += dir; render(); }
@@ -248,6 +267,12 @@
                         if(p.gf) b+='<span class="badge b-gf">GF</span>';
                         if(p.c) b+='<span class="badge b-c">C</span>';
                         if(p.pa) b+='<span class="badge b-pa">PA</span>';
+                        
+                        // Zeit anzeigen
+                        if(p.start && p.end && (p.start!=='06:00' || p.end!=='18:00')) {
+                            b += `<span class="time-badge">${p.start}-${p.end}</span>`;
+                        }
+                        
                         return `${p.name}${b}`;
                       }).join(', ')
                     : '<span style="opacity:0.5">Keine Anmeldungen</span>';
@@ -286,6 +311,12 @@
                 if(p.gf) b+='<span class="badge b-gf">GF</span>';
                 if(p.c) b+='<span class="badge b-c">C</span>';
                 if(p.pa) b+='<span class="badge b-pa">PA</span>';
+                
+                // Zeit im Modal
+                if(p.start && p.end && (p.start!=='06:00' || p.end!=='18:00')) {
+                    b += `<span class="time-badge" style="color:#ffd54f">(${p.start}-${p.end})</span>`;
+                }
+
                 html += `<div><b>${p.name}</b> ${b} ${note}</div>`;
             });
         }
