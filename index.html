@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tagesdienstplaner F3917</title>
+    <title>Tagesdienstplaner</title>
 
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
@@ -62,27 +62,24 @@
         .btn-leave { background: var(--bg-card); border: 2px solid var(--primary); color: var(--primary); }
         .btn-text { background: none; border: none; color: var(--text-muted); font-size: 0.9rem; padding: 10px; cursor: pointer; text-decoration: underline; }
         .btn-small { padding: 5px 10px; font-size: 0.8rem; width: auto; margin: 0; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px;}
-        
-        /* HEADER NAV BUTTONS */
-        .btn-icon { 
-            background: none; border: none; 
-            font-size: 1.5rem; /* Größer für bessere Klickbarkeit */
-            cursor: pointer; color: var(--primary); 
-            padding: 5px 15px; 
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn-icon:active { opacity: 0.5; transform: scale(0.9); }
+        .btn-icon { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); padding: 5px 15px; display: flex; align-items: center; justify-content: center; }
 
-        input[type="text"], input[type="password"], input[type="date"] {
+        input[type="text"], input[type="password"], input[type="date"], input[type="time"] {
             width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid var(--border-color); border-radius: 10px; 
             font-size: 1.1rem; outline: none; background: var(--bg-input); color: var(--text-main);
         }
         input:focus { border-color: var(--primary); }
 
+        /* Time Inputs im Modal */
+        .time-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; display: none; }
+        .radio-group { display: flex; gap: 15px; margin-bottom: 10px; }
+        .radio-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500; }
+
         .badge { font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; margin-left: 0; margin-right: 4px; font-weight: bold; display: inline-block; }
         .badge-gf { background: var(--st-grn-bg); color: var(--st-grn-txt); }
         .badge-c { background: var(--st-org-bg); color: var(--st-org-txt); }
         .badge-pa { background: var(--st-red-bg); color: var(--st-red-txt); }
+        .badge-time { border: 1px solid var(--text-muted); color: var(--text-muted); font-weight: normal; margin-left: 5px; }
 
         #save-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
@@ -114,15 +111,7 @@
             display: flex; justify-content: space-between; align-items: center; cursor: default;
         }
 
-        /* --- HEADER LAYOUT (GEÄNDERT) --- */
-        .header { 
-            display: flex; 
-            justify-content: center; /* Alles in die Mitte */
-            align-items: center; 
-            gap: 15px; /* Abstand zwischen den Elementen */
-            margin-bottom: 15px; 
-            padding-top: 10px; 
-        }
+        .header { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; padding-top: 10px; }
         .month-title { font-size: 1.4rem; font-weight: 800; margin: 0; text-align: center; min-width: 140px; }
 
         .calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; margin-bottom: 20px; }
@@ -169,6 +158,10 @@
         .modal-card { background: var(--bg-card); width: 90%; max-width: 350px; padding: 25px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: var(--text-main); }
         .user-list-scroll { max-height: 150px; overflow-y: auto; margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid var(--border-color); padding-top: 10px;}
         
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save { flex: 2; background: var(--primary); color: white; }
+        .btn-delete { flex: 1; background: var(--bg-card); border: 1px solid var(--st-red-txt); color: var(--st-red-txt); }
+
         #loading { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-body); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; color: var(--text-main); }
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -184,30 +177,24 @@
 </div>
 
 <div id="screen-user-select" class="screen active">
-    <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">🚒 Dienstplan</h1>
+    <h1 style="color:var(--primary); text-align:center; margin-bottom:10px;">Tagesdienstplaner</h1>
     <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Wer bist du?</p>
-    
     <input type="text" id="user-search" placeholder="🔍 Name suchen..." onkeyup="renderUserList()">
-    
     <ul id="user-select-list"></ul>
-    
     <div id="empty-msg" style="display:none; text-align:center; color:var(--text-muted); padding:20px;">
         Verbindung da.<br>Aber noch keine Mannschaft.<br>Bitte als Admin anmelden.
     </div>
-
     <div style="text-align:center; margin-top:40px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-        
         <a href="monitor.html" class="btn btn-outline" style="text-decoration:none; padding:12px 25px; border-radius:50px; font-size:1rem; border-color:var(--primary); color:var(--primary);">
-            Dashboard öffnen
+            📺 Monitor Ansicht öffnen
         </a>
-
         <button class="btn-text" onclick="showAdminLogin()" style="margin-top:10px;">Admin Login</button>
     </div>
 </div>
 
 <div id="screen-admin-login" class="screen" style="text-align:center;">
     <h2 style="margin-top:40px;">🔒 Admin Login</h2>
-    <p style="color:var(--text-muted);">PIN eingeben</p>
+    <p style="color:var(--text-muted);">PIN eingeben (Standard: 112)</p>
     <input type="password" id="admin-pin" placeholder="PIN" pattern="[0-9]*" inputmode="numeric" style="text-align:center;">
     <button class="btn btn-primary" onclick="checkAdmin()">Einloggen</button>
     <button class="btn btn-outline" onclick="showStart()">Zurück</button>
@@ -268,11 +255,30 @@
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
     <div class="modal-card">
         <div style="font-size:1.2rem; font-weight:bold;" id="m-date">Datum</div>
-        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;" id="m-status-text">Status</div>
-        <label style="font-size:0.8rem; font-weight:bold;">Notiz (optional):</label>
-        <input type="text" id="m-note" style="margin-top:5px; padding:10px;" placeholder="z.B. erst ab 12 Uhr...">
+        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px;" id="m-status-text">Status</div>
+        
+        <div class="radio-group">
+            <label class="radio-label">
+                <input type="radio" name="timeType" value="full" checked onclick="toggleTimeInput(false)"> Ganztägig
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="timeType" value="part" onclick="toggleTimeInput(true)"> Zeitraum
+            </label>
+        </div>
+
+        <div id="time-input-container" class="time-row">
+            <input type="time" id="t-start" value="06:00"> bis <input type="time" id="t-end" value="18:00">
+        </div>
+
+        <label style="font-size:0.8rem; font-weight:bold; margin-top:10px; display:block;">Notiz (optional):</label>
+        <input type="text" id="m-note" style="margin-top:5px; padding:10px;" placeholder="Info...">
+
         <div class="user-list-scroll" id="m-list"></div>
-        <button id="btn-modal-action" class="btn" onclick="saveEntry()">Laden...</button>
+        
+        <div class="modal-actions">
+            <button id="btn-delete" class="btn btn-delete" onclick="deleteEntry()" style="display:none;">Austragen</button>
+            <button class="btn btn-save" onclick="saveEntry()">Speichern</button>
+        </div>
     </div>
 </div>
 
@@ -415,29 +421,56 @@
     function deleteMember(i) { if(confirm('Löschen?')) { team.splice(i,1); renderAdminList(); markUnsaved(); } }
     function saveAndExitAdmin() { syncData(); showStart(); }
 
-    // --- LOGIC ---
+    // --- NEW LOGIC: TIME BASED CHECK ---
     function checkStatus(list) {
-        let n = list.length, pa = list.filter(x=>x.pa).length;
-        let listGF = list.filter(x => x.gf), listC = list.filter(x => x.c);
-        let listBoth = list.filter(x => x.gf && x.c);
-        let distinctHeads = listGF.length + listC.length - listBoth.length;
+        // Tagesschicht Definition
+        const START_HOUR = 6;
+        const END_HOUR = 15;
+        
+        let badHours = []; // Stunden, die nicht voll sind
 
-        let m = [];
-        if(n<6) m.push((6-n)+" Pers");
-        if(pa<2) m.push((2-pa)+" PA");
-        if(listGF.length === 0) m.push("Führung");
-        if(listC.length === 0) m.push("Masch.");
-        if (listGF.length > 0 && listC.length > 0 && distinctHeads < 2) m.push("C/GF Konflikt");
+        // Jede Stunde prüfen
+        for(let h = START_HOUR; h < END_HOUR; h++) {
+            // Wer ist in Stunde h da?
+            // Legacy Support: Wenn kein start/end da ist, nehmen wir an er ist voll da (06-18)
+            let peopleAtHour = list.filter(p => {
+                let s = p.start ? parseInt(p.start.split(':')[0]) : START_HOUR;
+                let e = p.end ? parseInt(p.end.split(':')[0]) : END_HOUR;
+                return h >= s && h < e;
+            });
 
-        let col = 'green'; if(m.length>0) col = 'orange'; if(n<4) col = 'red';
-        return { color: col, count: n, text: m.join(', ') || 'Vollzählig' };
+            // Zählen
+            let n = peopleAtHour.length;
+            let gf = peopleAtHour.filter(x => x.gf).length;
+            let c = peopleAtHour.filter(x => x.c).length;
+            
+            // Checks
+            let issues = [];
+            if(n < 6) issues.push("Personal");
+            if(gf < 1) issues.push("GF");
+            if(c < 1) issues.push("Maschinist");
+
+            if(issues.length > 0) {
+                badHours.push(`${h}-${h+1} Uhr (${issues.join(', ')})`);
+            }
+        }
+
+        // Ergebnis zusammenfassen
+        let totalCount = list.length; // Für die Anzeige oben rechts nehmen wir die Gesamtliste
+        
+        if (badHours.length === 0) {
+            return { color: 'green', count: totalCount, text: 'Voll besetzt (06-18)' };
+        } else {
+            // Zeige nur den ersten Fehler an, sonst wird es zu lang
+            let txt = badHours.length === (END_HOUR - START_HOUR) ? "Nicht besetzt" : "Lücken: " + badHours[0];
+            if(badHours.length > 1) txt += " + weitere";
+            
+            let col = totalCount < 4 ? 'red' : 'orange';
+            return { color: col, count: totalCount, text: txt };
+        }
     }
 
-    // --- NAVIGATION ---
-    function changeWeek(dir) {
-        weekOffset += dir;
-        renderCalendar();
-    }
+    function changeWeek(dir) { weekOffset += dir; renderCalendar(); }
 
     function renderCalendar() {
         const grid = document.getElementById('grid-content'); grid.innerHTML = '';
@@ -500,8 +533,12 @@
     function getVacationers(key) { return vacations.filter(v => key >= v.start && key <= v.end); }
     
     function copyStatus(key, title, st, list) {
-        let names = list.map(p => p.name).join(', ');
-        let missing = st.color === 'green' ? "Einsatzbereit" : "⚠️ Es fehlt: " + st.text;
+        let names = list.map(p => {
+            let t = (p.start && p.end && (p.start!=='06:00' || p.end!=='18:00')) ? ` (${p.start}-${p.end})` : '';
+            return p.name + t;
+        }).join(', ');
+        
+        let missing = st.color === 'green' ? "Einsatzbereit" : "⚠️ Problem: " + st.text;
         let text = `*Status ${title} (${key.split('-').reverse().join('.')})*\n${missing}\n\n👥 Dabei (${st.count}/6): ${names || '-'}`;
         navigator.clipboard.writeText(text).then(() => alert("Kopiert! Ab in WhatsApp damit.")).catch(e => alert("Fehler beim Kopieren"));
     }
@@ -516,10 +553,17 @@
             let st = checkStatus(list);
             let title = offset === 0 ? "Heute" : "Morgen";
             let dateStr = d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
-            let notesHTML = ''; list.forEach(p => { if(p.note) notesHTML += `<div class="note-alert"><b>${p.name}:</b> ${p.note}</div>`; });
+            
+            // Notes + Times
+            let notesHTML = ''; 
+            list.forEach(p => { 
+                let t = (p.start && p.end && (p.start!=='06:00' || p.end!=='18:00')) ? ` 🕒 ${p.start}-${p.end}` : '';
+                if(p.note || t) notesHTML += `<div class="note-alert"><b>${p.name}:</b> ${t} ${p.note}</div>`; 
+            });
+            
             let vacationList = getVacationers(key);
             let vacHTML = ''; if(vacationList.length > 0) { let names = vacationList.map(v => v.name).join(', '); vacHTML = `<div class="vacation-info">🏖️ Im Urlaub: ${names}</div>`; }
-            let msg = st.color==='green' ? '✅ Einsatzbereit' : `⚠️ Fehlt: ${st.text}`;
+            let msg = st.color==='green' ? '✅ Einsatzbereit' : `⚠️ Status: ${st.text}`;
             if(list.length===0) msg = "⚠️ Noch niemand eingeteilt";
             
             let card = document.createElement('div'); card.className = 'briefing-card';
@@ -528,6 +572,10 @@
                 <div class="bc-head bc-${st.color}"><span>${title}, ${dateStr}</span><span>${st.count}/6</span></div><div class="bc-body"><div style="font-weight:bold; margin-bottom:5px;">${msg}</div>${notesHTML}${vacHTML}</div>`;
             board.appendChild(card);
         });
+    }
+
+    function toggleTimeInput(show) {
+        document.getElementById('time-input-container').style.display = show ? 'flex' : 'none';
     }
 
     function openModal(key, day, st, list) {
@@ -539,9 +587,27 @@
         let myEntry = list.find(x => x.name === currentUser.name);
         document.getElementById('m-note').value = myEntry ? myEntry.note : '';
         
-        const btn = document.getElementById('btn-modal-action');
-        if (myEntry) { btn.innerText = "Austragen (Entfernen)"; btn.className = "btn btn-leave"; } 
-        else { btn.innerText = "Eintragen (Vormerken)"; btn.className = "btn btn-join"; }
+        // Time Inputs setzen
+        let isPart = myEntry && (myEntry.start !== '06:00' || myEntry.end !== '18:00');
+        if(isPart) {
+            document.querySelector('input[name="timeType"][value="part"]').checked = true;
+            document.getElementById('time-input-container').style.display = 'flex';
+            document.getElementById('t-start').value = myEntry.start;
+            document.getElementById('t-end').value = myEntry.end;
+        } else {
+            document.querySelector('input[name="timeType"][value="full"]').checked = true;
+            document.getElementById('time-input-container').style.display = 'none';
+            document.getElementById('t-start').value = '06:00';
+            document.getElementById('t-end').value = '18:00';
+        }
+        
+        // Button Logik
+        const btn = document.getElementById('btn-delete');
+        if (myEntry) {
+            btn.style.display = 'block';
+        } else {
+            btn.style.display = 'none';
+        }
 
         let html = '';
         list.forEach(p => {
@@ -551,8 +617,14 @@
             if(p.c) badges += '<span class="badge badge-c">C</span>';
             if(p.pa) badges += '<span class="badge badge-pa">PA</span>';
             
+            let timeBadge = '';
+            // Zeige Zeit nur wenn nicht ganztags (06-18)
+            if(p.start && p.end && (p.start !== '06:00' || p.end !== '18:00')) {
+                timeBadge = `<span class="badge badge-time">🕒 ${p.start}-${p.end}</span>`;
+            }
+
             let highlight = (p.name === currentUser.name) ? "background:var(--bg-admin); border-left:3px solid var(--primary);" : "";
-            html += `<div style="border-bottom:1px solid var(--border-color); padding:6px; ${highlight}"><b>${p.name}</b> ${badges} ${note}</div>`;
+            html += `<div style="border-bottom:1px solid var(--border-color); padding:6px; ${highlight}"><b>${p.name}</b> ${badges} ${timeBadge} ${note}</div>`;
         });
         document.getElementById('m-list').innerHTML = html || '<i>Noch keine Anmeldungen</i>';
     }
@@ -560,15 +632,34 @@
     function saveEntry() {
         let list = entries[selectedKey] || [];
         let note = document.getElementById('m-note').value;
+        
+        let isFullDay = document.querySelector('input[name="timeType"]:checked').value === 'full';
+        let s = isFullDay ? '06:00' : document.getElementById('t-start').value;
+        let e = isFullDay ? '18:00' : document.getElementById('t-end').value;
+
         let idx = list.findIndex(x => x.name === currentUser.name);
         if(idx > -1) list.splice(idx, 1);
-        else list.push({...currentUser, note: note});
+        
+        list.push({...currentUser, note: note, start: s, end: e});
+        
         entries[selectedKey] = list;
         document.getElementById('modal-bg').style.display = 'none';
         renderCalendar(); markUnsaved(); 
     }
+
+    function deleteEntry() {
+        if(!confirm("Austragen?")) return;
+        let list = entries[selectedKey] || [];
+        let idx = list.findIndex(x => x.name === currentUser.name);
+        if(idx > -1) {
+            list.splice(idx, 1);
+            entries[selectedKey] = list;
+            document.getElementById('modal-bg').style.display = 'none';
+            renderCalendar(); markUnsaved();
+        }
+    }
+
     function closeModal(e) { if(e.target.id === 'modal-bg' || e.target.id === 'modal-vacation') { document.getElementById('modal-bg').style.display = 'none'; document.getElementById('modal-vacation').style.display = 'none'; }}
 </script>
 </body>
 </html>
-
